@@ -255,7 +255,9 @@ def main() -> int:
 
     msgs = root.get("messages")
     if not isinstance(msgs, list) or not msgs:
-        raise SystemExit("JSON 中未找到 messages 数组或为空")
+        print("JSON 中未找到 messages 数组或为空")
+        return 1
+
 
     lines: List[LogLine] = []
 
@@ -287,6 +289,8 @@ def main() -> int:
 
     if not lines:
         raise SystemExit("过滤后无可用消息")
+        print("过滤后无可用消息")
+        return 1
 
     lines.sort(key=lambda x: x.timestamp)
     start = lines[0].timestamp
@@ -308,4 +312,19 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    import sys
+    ret = main()
+    if ret == 0:
+        print("保存完成，按任意键退出...", end="", flush=True)
+    else:
+        print("程序出错，按任意键退出...", end="", flush=True)
+
+    # 跨平台等待按键
+    try:
+        import msvcrt
+        msvcrt.getch()          # Windows 无回显等待任意键
+        print()                  # 输出换行
+    except ImportError:
+        input()                  # 其他系统等待回车键
+
+    sys.exit(ret)
